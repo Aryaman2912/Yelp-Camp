@@ -1,22 +1,39 @@
-var express = require('express')
-var app = express();
+var express = require('express');
+var bodyParser = require("body-parser");
+var app = express();	
 
+app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine","ejs");
+
+var campgrounds = [
+		{name: "Salmon Creek",image: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=459&q=80"},
+		{name: "Granite Hill",image: "https://images.unsplash.com/photo-1552522060-ab53cefef28e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=459&q=80"},
+		{name: "Mountain Goat's Rest",image: "https://images.unsplash.com/photo-1471115853179-bb1d604434e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=459&q=80.jpg"},
+		{name: "Salmon Creek",image: "https://images.unsplash.com/photo-1510312305653-8ed496efae75?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=459&q=80"},
+		{name: "Granite Hill",image: "https://images.unsplash.com/photo-1552522060-ab53cefef28e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=459&q=80"},
+		{name: "Mountain Goat's Rest",image: "https://images.unsplash.com/photo-1471115853179-bb1d604434e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=459&q=80.jpg"},
+	]
 
 app.get('/',function (req,res){
 	res.render('landing')
 });
 
 app.get("/campgrounds",function(req,res){
-	var campgrounds = [
-		{name: "Salmon Creek",image: "https://cdn.pixabay.com/photo/2016/11/21/14/31/vw-bus-1845719_1280.jpg"},
-		{name: "Granite Hill",image: "https://cdn.pixabay.com/photo/2016/11/22/23/08/adventure-1851092_1280.jpg"},
-		{name: "Mountain Goat's Rest",image: "https://cdn.pixabay.com/photo/2020/01/11/07/39/north-4756774_1280.jpg"}
-	]
-	res.render('campgrounds',{campgrounds:campgrounds})
+	
+	res.render('campgrounds',{campgrounds:campgrounds});
 })
 
+app.post("/campgrounds",function (req,res){
+	var name = req.body.name;
+	var img = req.body.img;
+	var newCampground = {name:name,image:img};
+	campgrounds.push(newCampground);
+	res.render("campgrounds",{campgrounds:campgrounds});
+});
 
+app.get("/campgrounds/new",function(req,res){
+	res.render("new")
+})
 
 app.listen(8000,function(){
 	console.log("Server started!");

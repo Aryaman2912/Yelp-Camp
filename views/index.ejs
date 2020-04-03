@@ -5,7 +5,7 @@
 	<header class="jumbotron container">
 		<h1>Welcome to Yelp Camp!</h1>
 		<p>The best of campgrounds specially selected just for you!</p>
-		<p><a href="campgrounds/new" class="btn btn-primary btn-lg">Add new campground</a></p>	
+		<p><a href="/campgrounds/new" class="btn btn-primary btn-lg">Add new campground</a></p>	
 	</header>
 
 
@@ -20,6 +20,7 @@
 				<div class="caption">
 					<h4><%= camp.name %></h4>
 				</div>
+				<p><a href="/campgrounds/<%= camp._id %>" class="btn btn-primary">More info</a></p>
 			</div>
 		</div>
 		<% }); %>

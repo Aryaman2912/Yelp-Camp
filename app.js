@@ -3,14 +3,15 @@ var express    = require("express"),
  	bodyParser = require("body-parser"),
  	app        = express();	
 
-mongoose.connect("mongodb://localhost/yelp_camp");
+mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true,useUnifiedTopology: true});
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine","ejs");
 
 // Campground Schema setup
 var campgroundSchema = new mongoose.Schema({
 	name: String,
-	image: String
+	image: String,
+	description: String
 });
 
 //Create model of campgroundSchema
@@ -21,30 +22,26 @@ app.get('/',function (req,res){
 	res.render('landing');
 });
 
-// Route for rendering the 'all campgrounds' page 
-app.get("/campgrounds",function(req,res){
+// INDEX route - display all campgrounds in DB
+app.get("/campgrounds",function(_req,res){
 	// Fnd all campgrounds and pass the data to the campgrounds view
 	Campground.find({},function(err,allCampgrounds){
 		if(err){
 			console.log(err)
 		}
 		else{
-			res.render('campgrounds',{campgrounds:allCampgrounds});
+			res.render('index',{campgrounds:allCampgrounds});
 		}
 	});	
 });
 
-// Route for adding a new campground
-app.get("/campgrounds/new",function(req,res){
-	res.render("new");
-});
-
-// Route for adding the new campground to the DB and rendering campgrounds page with new campground added
+// CREATE route - add new campground to DB
 app.post("/campgrounds",function (req,res){
 	// Extract data from the body of the input given by the user
 	var name = req.body.name;
 	var img = req.body.img;
-	var newCampground = {name:name,image:img};
+	var desc = req.body.description;
+	var newCampground = {name:name,image:img,description:desc};
 	// Create new campground using the data given by the user
 	Campground.create(newCampground,function(err,newlyCreated){
 		if(err){
@@ -55,6 +52,39 @@ app.post("/campgrounds",function (req,res){
 		}
 	});
 });
+
+// NEW route - display form to add new campground
+app.get("/campgrounds/new",function(_req,res){
+	res.render("new");
+});
+
+// SHOW route - display detailed info about a particular campground
+app.get("/campgrounds/:id",function(req,res){
+	// Identify and get campground which has an id matching the id in the url
+	Campground.findById(req.params.id,function(err,foundCampground){
+		if(err){
+			console.log(err)
+		}
+		else{
+			res.render("show",{campground:foundCampground})
+		}
+	});
+});
+
+// Campground.create(
+// 	{
+// 		name: "Visual Bliss",
+// 		image: "https://images.unsplash.com/photo-1519395612667-3b754d7b9086?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=460&q=80",
+// 		description: "This is a beautiful campground but it has no bathrooms and no water. Enjoy yourself. Enjaay."
+// 	},function(err,campground){
+// 		if(err){
+// 			console.log(err)
+// 		}
+// 		else{
+// 			console.log("Newly created!");
+// 			console.log(campground)
+// 		}
+// 	});
 
 // App listens on port 8000
 app.listen(8000,function(){

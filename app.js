@@ -4,6 +4,7 @@ var express    = require("express"),
 	app        = express(),
 	Campground = require("./models/campgrounds"),
 	seedDB     = require("./seeds");
+	Comment    = require("./models/comments")
 
 mongoose.connect("mongodb://localhost:27017/yelp_camp", {useNewUrlParser: true,useUnifiedTopology: true});
 app.use(bodyParser.urlencoded({extended:true}));
@@ -24,7 +25,7 @@ app.get("/campgrounds",function(_req,res){
 			console.log(err)
 		}
 		else{
-			res.render('index',{campgrounds:allCampgrounds});
+			res.render('campgrounds/index',{campgrounds:allCampgrounds});
 		}
 	});	
 });
@@ -48,8 +49,8 @@ app.post("/campgrounds",function (req,res){
 });
 
 // NEW route - display form to add new campground
-app.get("/campgrounds/new",function(_req,res){
-	res.render("new");
+app.get("/campgrounds/new",function(req,res){
+	res.render("campgrounds/new");
 });
 
 // SHOW route - display detailed info about a particular campground
@@ -60,26 +61,41 @@ app.get("/campgrounds/:id",function(req,res){
 			console.log(err)
 		}
 		else{
-			res.render("show",{campground:foundCampground})
+			res.render("campgrounds/show",{campground:foundCampground})
 		}
 	});
 });
 
-// Campground.create(
-// 	{
-// 		name: "Visual Bliss",
-// 		image: "https://images.unsplash.com/photo-1519395612667-3b754d7b9086?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=460&q=80",
-// 		description: "This is a beautiful campground but it has no bathrooms and no water. Enjoy yourself. Enjaay."
-// 	},function(err,campground){
-// 		if(err){
-// 			console.log(err)
-// 		}
-// 		else{
-// 			console.log("Newly created!");
-// 			console.log(campground)
-// 		}
-// 	});
+app.get("/campgrounds/:id/comments/new",function(req,res){
+	Campground.findById(req.params.id,function(err,campground){
+		if(err){
+			console.log(err)
+		}
+		else{
+			res.render("comments/new",{campground:campground})
+		}
+	});
+});
 
+app.post("/campgrounds/:id/comments",function(req,res){
+	Campground.findById(req.params.id,function(err,campground){
+		if(err){
+			res.redirect("/campgrounds")
+		}
+		else{
+			Comment.create(req.body.comment,function(err,comment){
+				if(err){
+					res.redirect("/comments/new");
+				}
+				else{
+					campground.comments.push(comment)
+					campground.save();
+					res.redirect("/campgrounds/" + campground._id)
+				}
+			});
+		}
+	});
+});
 // App listens on port 8000
 app.listen(8000,function(){
 	console.log("Server started!");

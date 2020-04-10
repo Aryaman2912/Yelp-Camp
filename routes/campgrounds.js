@@ -20,13 +20,13 @@ router.get("/",function(req,res){
 router.post("/",isLoggedIn,function (req,res){
 	// Extract data from the body of the input given by the user
 	var name = req.body.name;
-	var img = req.body.img;
+	var image = req.body.image;
 	var desc = req.body.description;
 	var author = {
 		id : req.user._id,
 		username: req.user.username
 	};
-	var newCampground = {name:name,image:img,description:desc,author:author};
+	var newCampground = {name:name,image:image,description:desc,author:author};
 	// Create new campground using the data given by the user
 	Campground.create(newCampground,function(err,newlyCreated){
 		if(err){
@@ -56,6 +56,27 @@ router.get("/:id",function(req,res){
 	});
 });
 
+router.get("/:id/edit",function(req,res){
+	Campground.findById(req.params.id,function(err,foundCampground){
+		if(err){
+			res.redirect("/campgrounds");
+		}
+		else{
+			res.render("campgrounds/edit",{campground:foundCampground});
+		}
+	});
+});
+
+router.put("/:id",function(req,res){
+	Campground.findByIdAndUpdate(req.params.id,req.body.campground,function(err,foundCampground){
+		if(err){
+			res.redirect("/campgrounds")
+		}
+		else{
+			res.redirect("/campgrounds/" + req.params.id)
+		}
+	})
+})
 //Middleware
 function isLoggedIn(req,res,next){
 	if(req.isAuthenticated()){

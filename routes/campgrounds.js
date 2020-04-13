@@ -21,13 +21,14 @@ router.get("/",function(req,res){
 router.post("/",middleware.isLoggedIn,function (req,res){
 	// Extract data from the body of the input given by the user
 	var name = req.body.name;
+	var price = req.body.price;
 	var image = req.body.image;
 	var desc = req.body.description;
 	var author = {
 		id : req.user._id,
 		username: req.user.username
 	};
-	var newCampground = {name:name,image:image,description:desc,author:author};
+	var newCampground = {name:name,price:price,image:image,description:desc,author:author};
 	// Create new campground using the data given by the user
 	Campground.create(newCampground,function(err,newlyCreated){
 		if(err){
